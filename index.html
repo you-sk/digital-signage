@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>デジタルサイネージ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            overflow: hidden;
+            background: #000;
+        }
+
+        #display {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            background: #000;
+            color: #fff;
+        }
+
+        #control-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            color: #fff;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            max-width: 300px;
+        }
+
+        #control-panel.hidden {
+            display: none;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background: #222;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        button {
+            background: #0084ff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: #0066cc;
+        }
+
+        #toggle-controls {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1001;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        /* アニメーションスタイル */
+        .text-scroll-horizontal {
+            position: absolute;
+            white-space: nowrap;
+            animation: scrollHorizontal var(--duration) linear infinite;
+        }
+
+        @keyframes scrollHorizontal {
+            0% {
+                transform: translateX(100%);
+            }
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+        .text-scroll-vertical {
+            position: absolute;
+            text-align: center;
+            animation: scrollVertical var(--duration) linear infinite;
+            width: 100%;
+        }
+
+        @keyframes scrollVertical {
+            0% {
+                transform: translateY(100vh);
+            }
+            100% {
+                transform: translateY(calc(-100% - 100vh));
+            }
+        }
+
+        .text-typewriter {
+            position: absolute;
+            white-space: pre-wrap;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .typewriter-char {
+            opacity: 0;
+            animation: typeIn 0.1s forwards;
+        }
+
+        @keyframes typeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        input[type="color"] {
+            height: 40px;
+            cursor: pointer;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <button id="toggle-controls">設定パネル [C]</button>
+    
+    <div id="control-panel">
+        <h3 style="margin-bottom: 20px;">デジタルサイネージ設定</h3>
+        
+        <div class="control-group">
+            <label>表示テキスト:</label>
+            <textarea id="display-text" placeholder="表示したいテキストを入力">デジタルサイネージへようこそ！</textarea>
+        </div>
+
+        <div class="control-group">
+            <label>アニメーションタイプ:</label>
+            <select id="animation-type">
+                <option value="horizontal">右から左へ流れる</option>
+                <option value="vertical">下から上へ流れる</option>
+                <option value="typewriter">タイプライター</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>フォント:</label>
+            <select id="font-select">
+                <option value="Arial">Arial</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Courier New">Courier New</option>
+                <option value="Verdana">Verdana</option>
+                <option value="Impact">Impact</option>
+                <option value="Comic Sans MS">Comic Sans MS</option>
+                <option value="Trebuchet MS">Trebuchet MS</option>
+                <option value="Noto Sans JP">Noto Sans JP</option>
+                <option value="Meiryo">メイリオ</option>
+                <option value="Yu Gothic">游ゴシック</option>
+                <option value="Hiragino Kaku Gothic Pro">ヒラギノ角ゴ Pro</option>
+                <option value="custom">カスタムフォント入力</option>
+            </select>
+            <input type="text" id="custom-font" placeholder="フォント名を入力" style="display: none; margin-top: 10px;">
+        </div>
+
+        <div class="control-group">
+            <label>フォントサイズ (px):</label>
+            <input type="number" id="font-size" value="60" min="10" max="300">
+        </div>
+
+        <div class="control-group">
+            <label>文字色:</label>
+            <input type="color" id="text-color" value="#ffffff">
+        </div>
+
+        <div class="control-group">
+            <label>背景色:</label>
+            <input type="color" id="bg-color" value="#000000">
+        </div>
+
+        <div class="control-group">
+            <label>アニメーション速度 (秒):</label>
+            <input type="number" id="animation-speed" value="10" min="1" max="60">
+        </div>
+
+        <div class="button-group">
+            <button onclick="applySettings()">適用</button>
+            <button onclick="toggleFullscreen()">フルスクリーン</button>
+        </div>
+    </div>
+
+    <div id="display"></div>
+
+    <script>
+        let currentAnimation = null;
+        let typewriterInterval = null;
+
+        // 初期表示
+        window.onload = () => {
+            loadAvailableFonts();
+            applySettings();
+        };
+
+        // ローカルフォントの検出
+        function loadAvailableFonts() {
+            const testFonts = [
+                'Arial', 'Georgia', 'Times New Roman', 'Courier New', 
+                'Verdana', 'Impact', 'Comic Sans MS', 'Trebuchet MS',
+                'Noto Sans JP', 'Meiryo', 'Yu Gothic', 'Hiragino Kaku Gothic Pro',
+                'MS Gothic', 'MS Mincho', 'Helvetica', 'Tahoma',
+                'Palatino', 'Garamond', 'Bookman', 'Avant Garde'
+            ];
+
+            const fontSelect = document.getElementById('font-select');
+            
+            // 追加のフォントを検出して追加
+            testFonts.forEach(font => {
+                if (!Array.from(fontSelect.options).some(opt => opt.value === font)) {
+                    if (isFontAvailable(font)) {
+                        const option = document.createElement('option');
+                        option.value = font;
+                        option.textContent = font;
+                        fontSelect.insertBefore(option, fontSelect.lastElementChild);
+                    }
+                }
+            });
+        }
+
+        // フォントが利用可能か確認
+        function isFontAvailable(fontName) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            const text = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            
+            context.font = '72px monospace';
+            const baselineSize = context.measureText(text).width;
+            
+            context.font = `72px '${fontName}', monospace`;
+            const newSize = context.measureText(text).width;
+            
+            return newSize !== baselineSize;
+        }
+
+        // フォント選択の変更
+        document.getElementById('font-select').addEventListener('change', (e) => {
+            const customFontInput = document.getElementById('custom-font');
+            if (e.target.value === 'custom') {
+                customFontInput.style.display = 'block';
+            } else {
+                customFontInput.style.display = 'none';
+            }
+        });
+
+        // 設定を適用
+        function applySettings() {
+            const display = document.getElementById('display');
+            const text = document.getElementById('display-text').value;
+            const animationType = document.getElementById('animation-type').value;
+            const fontSelect = document.getElementById('font-select');
+            const customFont = document.getElementById('custom-font').value;
+            const font = fontSelect.value === 'custom' ? customFont : fontSelect.value;
+            const fontSize = document.getElementById('font-size').value;
+            const textColor = document.getElementById('text-color').value;
+            const bgColor = document.getElementById('bg-color').value;
+            const speed = document.getElementById('animation-speed').value;
+
+            // 背景色を設定
+            display.style.backgroundColor = bgColor;
+
+            // 既存のアニメーションをクリア
+            if (typewriterInterval) {
+                clearInterval(typewriterInterval);
+            }
+            display.innerHTML = '';
+
+            // テキスト要素を作成
+            const textElement = document.createElement('div');
+            textElement.textContent = text;
+            textElement.style.fontSize = fontSize + 'px';
+            textElement.style.color = textColor;
+            textElement.style.fontFamily = font;
+
+            // アニメーションタイプに応じて設定
+            switch (animationType) {
+                case 'horizontal':
+                    textElement.className = 'text-scroll-horizontal';
+                    textElement.style.setProperty('--duration', speed + 's');
+                    display.appendChild(textElement);
+                    break;
+
+                case 'vertical':
+                    textElement.className = 'text-scroll-vertical';
+                    textElement.style.setProperty('--duration', speed + 's');
+                    display.appendChild(textElement);
+                    break;
+
+                case 'typewriter':
+                    textElement.className = 'text-typewriter';
+                    textElement.innerHTML = '';
+                    display.appendChild(textElement);
+                    typewriterEffect(text, textElement, speed);
+                    break;
+            }
+        }
+
+        // タイプライター効果
+        function typewriterEffect(text, element, totalDuration) {
+            const chars = text.split('');
+            const delay = (totalDuration * 1000) / chars.length;
+            let index = 0;
+
+            function resetAndRestart() {
+                if (typewriterInterval) {
+                    clearInterval(typewriterInterval);
+                }
+                element.innerHTML = '';
+                index = 0;
+                typewriterInterval = setInterval(typeNextChar, delay);
+            }
+
+            function typeNextChar() {
+                if (index < chars.length) {
+                    const span = document.createElement('span');
+                    span.className = 'typewriter-char';
+                    span.textContent = chars[index];
+                    span.style.animationDelay = '0s';
+                    element.appendChild(span);
+                    index++;
+                } else {
+                    // 全文字表示後、インターバルをクリアして2秒後に再開
+                    clearInterval(typewriterInterval);
+                    setTimeout(resetAndRestart, 2000);
+                }
+            }
+
+            typewriterInterval = setInterval(typeNextChar, delay);
+        }
+
+        // フルスクリーン切り替え
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // コントロールパネルの表示/非表示
+        document.getElementById('toggle-controls').addEventListener('click', () => {
+            const panel = document.getElementById('control-panel');
+            panel.classList.toggle('hidden');
+        });
+
+        // キーボードショートカット
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'c' || e.key === 'C') {
+                const panel = document.getElementById('control-panel');
+                panel.classList.toggle('hidden');
+            } else if (e.key === 'f' || e.key === 'F') {
+                toggleFullscreen();
+            }
+        });
+
+        // フルスクリーン時の制御
+        document.addEventListener('fullscreenchange', () => {
+            const toggleBtn = document.getElementById('toggle-controls');
+            if (document.fullscreenElement) {
+                toggleBtn.style.display = 'block';
+            } else {
+                toggleBtn.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
