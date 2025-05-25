@@ -32,6 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // キーボードショートカット
     document.addEventListener('keydown', (e) => {
+        // 入力要素（input, textarea）にフォーカスがある場合は、ショートカットを無効化
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+            return;
+        }
+
         if (e.key === 'c' || e.key === 'C') {
             const panel = document.getElementById('control-panel');
             panel.classList.toggle('hidden');
