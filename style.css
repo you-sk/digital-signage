@@ -100,16 +100,18 @@ button:hover {
     position: absolute;
     white-space: nowrap;
     animation: scrollHorizontal var(--duration) linear infinite;
+    width: max-content; /* 追加: テキストの実際の幅を確保 */
 }
 
 @keyframes scrollHorizontal {
     0% {
-        transform: translateX(100%);
+        transform: translateX(100vw);
     }
     100% {
-        transform: translateX(-100%);
+        transform: translateX(calc(-100% - 100vw));
     }
 }
+
 
 #display .text-scroll-vertical {
     position: absolute;
