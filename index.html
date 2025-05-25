@@ -4,175 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>デジタルサイネージ</title>
-    <style>
-        :root {
-            --duration: 10s;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Noto Sans JP', sans-serif;
-            overflow: hidden;
-            background: #000;
-        }
-
-        #display {
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-            background: #000;
-            color: #fff;
-        }
-
-        #control-panel {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 20px;
-            border-radius: 10px;
-            color: #fff;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
-            max-width: 300px;
-        }
-
-        #control-panel.hidden {
-            display: none;
-        }
-
-        .control-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #444;
-            border-radius: 5px;
-            background: #222;
-            color: #fff;
-            font-size: 14px;
-        }
-
-        textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
-
-        button {
-            background: #0084ff;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-right: 10px;
-            margin-top: 10px;
-        }
-
-        button:hover {
-            background: #0066cc;
-        }
-
-        #toggle-controls {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 1001;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 12px;
-        }
-
-        /* アニメーションスタイル */
-        #display .text-scroll-horizontal {
-            position: absolute;
-            white-space: nowrap;
-            animation: scrollHorizontal var(--duration) linear infinite;
-        }
-
-        @keyframes scrollHorizontal {
-            0% {
-                transform: translateX(100%);
-            }
-            100% {
-                transform: translateX(-100%);
-            }
-        }
-
-        #display .text-scroll-vertical {
-            position: absolute;
-            text-align: center;
-            animation: scrollVertical var(--duration) linear infinite;
-            width: 100%;
-        }
-
-        @keyframes scrollVertical {
-            0% {
-                transform: translateY(100vh);
-            }
-            100% {
-                transform: translateY(calc(-100% - 100vh));
-            }
-        }
-
-        .text-typewriter {
-            position: absolute;
-            white-space: pre-wrap;
-            text-align: center;
-            max-width: 90%;
-        }
-
-        .typewriter-char {
-            opacity: 0;
-            animation: typeIn 0.1s forwards;
-        }
-
-        @keyframes typeIn {
-            to {
-                opacity: 1;
-            }
-        }
-
-        input[type="color"] {
-            height: 40px;
-            cursor: pointer;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-    <button id="toggle-controls">設定パネル [C]</button>
+    <button id="toggle-controls">設定[C]</button>
     
     <div id="control-panel">
         <h3 style="margin-bottom: 20px;">デジタルサイネージ設定</h3>
         
         <div class="control-group">
             <label for="display-text">表示テキスト：</label>
-            <textarea id="display-text" placeholder="表示したいテキストを入力">デジタルサイネージへようこそ！</textarea>
+            <textarea id="display-text" placeholder="表示したいテキストを入力">welcome digital signage !</textarea>
         </div>
 
         <div class="control-group">
@@ -229,7 +71,7 @@
 
         <div class="button-group">
             <button id="apply-settings">適用</button>
-            <button id="fullscreen-toggle">フルスクリーン</button>
+            <button id="fullscreen-toggle">フルスクリーン(F)</button>
         </div>
     </div>
 
